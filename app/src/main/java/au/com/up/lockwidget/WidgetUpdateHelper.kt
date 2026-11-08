@@ -18,6 +18,7 @@ object WidgetUpdateHelper {
     private val executor = Executors.newSingleThreadExecutor()
 
     fun renderAllWidgetsFromCache(context: Context) {
+        AutoSyncScheduler.ensureScheduled(context)
         val appWidgetManager = AppWidgetManager.getInstance(context)
 
         // Activity (Spending) Widgets

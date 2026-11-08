@@ -1,6 +1,8 @@
 package au.com.up.lockwidget
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -45,6 +47,9 @@ class MainActivity : AppCompatActivity() {
         etCategoryBudget = findViewById(R.id.et_category_budget)
         etToken = findViewById(R.id.et_token)
         btnSaveSync = findViewById(R.id.btn_save_sync)
+        val btnInstantNotif: Button = findViewById(R.id.btn_instant_notif)
+
+        AutoSyncScheduler.ensureScheduled(this)
 
         val currentToken = UpPreferences.getToken(this)
         etToken.setText(currentToken)
@@ -56,6 +61,10 @@ class MainActivity : AppCompatActivity() {
 
         btnSaveSync.setOnClickListener {
             saveInputsAndSync()
+        }
+
+        btnInstantNotif.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
 
         if (currentToken.isNotEmpty()) {

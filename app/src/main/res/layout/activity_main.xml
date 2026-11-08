@@ -247,6 +247,25 @@
                 android:textColor="#18181D"
                 android:textSize="15sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Background auto-sync runs automatically every 5–15 minutes. For instant 1-second updates whenever you tap your Up card or receive a transfer, enable Notification Access below:"
+                android:textColor="@color/up_text_secondary"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btn_instant_notif"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#32323E"
+                android:text="Enable Instant Sync on Up Notifications"
+                android:textAllCaps="false"
+                android:textColor="@color/up_text_primary"
+                android:textSize="13sp" />
         </LinearLayout>
 
     </LinearLayout>

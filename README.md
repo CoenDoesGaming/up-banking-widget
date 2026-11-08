@@ -22,6 +22,10 @@ Includes **6 Lock Screen & AOD widgets** across three widget families (available
 * **Category Tracker (2x1)**: Shows the category name (e.g., `Groceries`) and remaining budget (`$56 left`).
 * Pick any official Up spending category and set your monthly budget target inside the app.
 
+### 🔄 Automatic Background Updates
+* **Periodic Background Sync**: Automatically syncs your balances and transactions in the background every 5–15 minutes (`JobScheduler` + `AlarmManager`), and automatically resumes after device reboots (`BOOT_COMPLETED`).
+* **Real-Time Instant Sync (Optional)**: Enable **Up Widget Instant Sync** under Notification Access inside the app so your Lock Screen widgets update within 1.5 seconds whenever the official **Up** app posts a card purchase or transfer notification.
+
 ### 🚀 Tap to Open Up
 Tapping any widget on your Lock Screen prompts you to unlock your phone, refreshes your widget balances in the background, and opens the official **Up** app (`au.com.up.money`).
 
