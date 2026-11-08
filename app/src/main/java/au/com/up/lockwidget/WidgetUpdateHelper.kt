@@ -10,12 +10,15 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.PowerManager
 import android.widget.RemoteViews
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 object WidgetUpdateHelper {
     const val ACTION_REFRESH_WIDGET = "au.com.up.lockwidget.ACTION_REFRESH_WIDGET"
     private val executor = Executors.newSingleThreadExecutor()
+    private val isSyncInFlight = AtomicBoolean(false)
 
     fun renderAllWidgetsFromCache(context: Context) {
         AutoSyncScheduler.ensureScheduled(context)
@@ -75,7 +78,20 @@ object WidgetUpdateHelper {
         val appContext = context.applicationContext
         renderAllWidgetsFromCache(appContext)
 
+        if (!isSyncInFlight.compareAndSet(false, true) && onComplete == null) {
+            pendingResult?.finish()
+            return
+        }
+
         executor.execute {
+            val powerManager = appContext.getSystemService(PowerManager::class.java)
+            val wakeLock = powerManager?.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "UpLockWidget:ApiSyncWakeLock"
+            )?.apply {
+                setReferenceCounted(false)
+                acquire(12_000L)
+            }
             try {
                 val result = UpApiClient.syncAll(appContext)
                 result.onSuccess {
@@ -83,6 +99,13 @@ object WidgetUpdateHelper {
                 }
                 onComplete?.invoke(result)
             } finally {
+                isSyncInFlight.set(false)
+                AutoSyncScheduler.ensureScheduled(appContext)
+                runCatching {
+                    if (wakeLock?.isHeld == true) {
+                        wakeLock.release()
+                    }
+                }
                 pendingResult?.finish()
             }
         }

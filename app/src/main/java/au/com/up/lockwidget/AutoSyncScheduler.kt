@@ -7,22 +7,60 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.SystemClock
 
 object AutoSyncScheduler {
     private const val JOB_ID_PERIODIC_SYNC = 1001
     private const val ALARM_REQUEST_CODE = 2002
 
-    // 5 minutes interval while device is awake
-    private const val ALARM_INTERVAL_MS = 5 * 60 * 1000L
+    // 1 minute (60,000 ms) automatic wakeup sync interval (works while locked/screen off)
+    const val ALARM_INTERVAL_MS = 60 * 1000L
 
-    // 15 minutes periodic JobScheduler interval (Android minimum periodic interval)
+    // 15 minutes fallback JobScheduler interval
     private const val JOB_INTERVAL_MS = 15 * 60 * 1000L
 
     fun ensureScheduled(context: Context) {
         val appContext = context.applicationContext
+        scheduleNextOneMinuteWakeupAlarm(appContext)
         schedulePeriodicJob(appContext)
-        scheduleRepeatingAlarm(appContext)
+    }
+
+    fun scheduleNextOneMinuteWakeupAlarm(context: Context) {
+        val alarmManager = context.getSystemService(AlarmManager::class.java) ?: return
+        val intent = Intent(context, UpAutoSyncReceiver::class.java).apply {
+            action = UpAutoSyncReceiver.ACTION_AUTO_SYNC
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            ALARM_REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val triggerAtMillis = SystemClock.elapsedRealtime() + ALARM_INTERVAL_MS
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    triggerAtMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    triggerAtMillis,
+                    pendingIntent
+                )
+            }
+        } catch (_: SecurityException) {
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+        }
     }
 
     private fun schedulePeriodicJob(context: Context) {
@@ -38,25 +76,5 @@ object AutoSyncScheduler {
             .build()
 
         scheduler.schedule(jobInfo)
-    }
-
-    private fun scheduleRepeatingAlarm(context: Context) {
-        val alarmManager = context.getSystemService(AlarmManager::class.java) ?: return
-        val intent = Intent(context, UpAutoSyncReceiver::class.java).apply {
-            action = UpAutoSyncReceiver.ACTION_AUTO_SYNC
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            ALARM_REQUEST_CODE,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        alarmManager.setInexactRepeating(
-            AlarmManager.ELAPSED_REALTIME,
-            SystemClock.elapsedRealtime() + ALARM_INTERVAL_MS,
-            ALARM_INTERVAL_MS,
-            pendingIntent
-        )
     }
 }

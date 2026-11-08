@@ -252,7 +252,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Background auto-sync runs automatically every 5–15 minutes. For instant 1-second updates whenever you tap your Up card or receive a transfer, enable Notification Access below:"
+                android:text="Background auto-sync runs every 1 minute (even while your screen is locked). Enable Notification Access below for instant Lock Screen wake &amp; 1-second transaction updates:"
                 android:textColor="@color/up_text_secondary"
                 android:textSize="12sp" />
 
