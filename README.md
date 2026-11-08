@@ -1,0 +1,70 @@
+# Up Banking Lock Screen Widgets (Samsung One UI)
+
+An open-source Android app that brings **Up Bank** Lock Screen and Always-On Display (AOD) widgets to **Samsung One UI (One UI 7+)** devices, powered by the official [Up Banking API](https://developer.up.com.au/).
+
+---
+
+## ✨ Features & Included Widgets
+
+Includes **6 Lock Screen & AOD widgets** across three widget families (available in both **1x1 Tiny** and **2x1 Small** sizes):
+
+### 1. Activity (`1x1` & `2x1`)
+* **Activity (1x1)**: Shows the `Up` badge and your primary Spending account balance rounded to the nearest whole dollar (e.g., `$123`).
+* **Activity (2x1)**: Shows your Spending balance alongside the merchant/description and amount of your most recent Spending transaction (e.g., `Netflix • $19.99`).
+
+### 2. Savers (`1x1` & `2x1`)
+* **Savers (1x1)**: Shows `Savers` (or your selected Saver account name) and the whole-dollar balance (e.g., `$543`).
+* **Savers (2x1)**: Shows your Saver balance plus the latest transfer or activity description and signed amount (e.g., `From Spending • +$5`).
+* Choose between **All Savers** (combined balance across all your Savers) or any **individual Saver** inside the app.
+
+### 3. Category Tracker (`1x1` & `2x1`)
+* **Category Tracker (1x1)**: Renders a live circular progress ring around the 3-letter category code (e.g., `GRO`) and your remaining monthly budget (e.g., `$56`).
+* **Category Tracker (2x1)**: Shows the category name (e.g., `Groceries`) and remaining budget (`$56 left`).
+* Pick any official Up spending category and set your monthly budget target inside the app.
+
+### 🚀 Tap to Open Up
+Tapping any widget on your Lock Screen prompts you to unlock your phone, refreshes your widget balances in the background, and opens the official **Up** app (`au.com.up.money`).
+
+---
+
+## 📲 Installation & Setup
+
+1. **Download the APK**: Download the latest `.apk` from the [**Releases**](../../releases) page and install it on your Samsung Galaxy device.
+2. **Get Your Up Personal Access Token**:
+   * Open the **Up** app on your phone.
+   * Go to **Data sharing** → **Personal Access Token** (or visit [api.up.com.au](https://api.up.com.au/)).
+   * Generate a token (`up:yeah:...`) and copy it.
+3. **Configure the App**:
+   * Open the **Up** widget companion app.
+   * Paste your **Personal Access Token**, select your preferred Saver and Category Tracker budget, and tap **Save Settings & Sync All Widgets**.
+4. **Add Widgets to Your Samsung Lock Screen**:
+   * Long-press your **Lock Screen** (or open *Settings → Wallpaper and style → Lock screen*).
+   * Tap the widgets area beneath the clock.
+   * Select **Up** and add any of the `1x1` or `2x1` **Activity**, **Savers**, or **Category Tracker** widgets.
+
+---
+
+## 🛠️ Building from Source
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/CoenDoesGaming/up-banking-widget.git
+   cd up-banking-widget
+   ```
+2. Open the project in **Android Studio** (or build via Gradle):
+   ```bash
+   ./gradlew assembleDebug
+   ```
+3. The compiled APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
+
+---
+
+## 🔒 Privacy & Security
+* Your **Up Personal Access Token** is stored locally on your device in private app preferences (`SharedPreferences`) and is only ever sent directly to `https://api.up.com.au/api/v1` over HTTPS.
+* No third-party servers, analytics, or tracking are included.
+
+---
+
+## 🙏 Credits
+* Lock Screen & One UI widget metadata integration based on research and documentation from [`thatjoshguy67/blur-widget-demo`](https://github.com/thatjoshguy67/blur-widget-demo/wiki/Lock-Screen-Widgets).
+* Banking data powered by the [Up Bank API](https://developer.up.com.au/).

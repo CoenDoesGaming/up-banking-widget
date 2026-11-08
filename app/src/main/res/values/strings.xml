@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Up</string>
+
+    <string name="widget_activity_tiny_label">Activity (1x1)</string>
+    <string name="widget_activity_small_label">Activity (2x1)</string>
+    <string name="widget_activity_desc">Your available balance and recent transaction.</string>
+
+    <string name="widget_savers_tiny_label">Savers (1x1)</string>
+    <string name="widget_savers_small_label">Savers (2x1)</string>
+    <string name="widget_savers_desc">Your balance and activity for all or one of your Savers.</string>
+
+    <string name="widget_category_tiny_label">Category Tracker (1x1)</string>
+    <string name="widget_category_small_label">Category Tracker (2x1)</string>
+    <string name="widget_category_desc">Track your spending on a category.</string>
+</resources>

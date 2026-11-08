@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.UpLockWidget" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/up_coral</item>
+        <item name="colorPrimaryVariant">@color/up_coral</item>
+        <item name="colorOnPrimary">#18181D</item>
+        <item name="colorSecondary">@color/up_yellow</item>
+        <item name="android:statusBarColor">@color/up_bg_dark</item>
+        <item name="android:navigationBarColor">@color/up_bg_dark</item>
+        <item name="android:windowBackground">@color/up_bg_dark</item>
+    </style>
+</resources>

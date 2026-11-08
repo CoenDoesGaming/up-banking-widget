@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="up_coral">#FF7A64</color>
+    <color name="up_yellow">#FFE066</color>
+    <color name="up_bg_dark">#18181D</color>
+    <color name="up_card_dark">#24242C</color>
+    <color name="up_text_primary">#FFFFFF</color>
+    <color name="up_text_secondary">#B0B0BE</color>
+    <color name="widget_blur_tint">#28FFFFFF</color>
+    <color name="widget_mono_tint">#22FFFFFF</color>
+</resources>
