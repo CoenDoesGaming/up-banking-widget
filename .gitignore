@@ -32,3 +32,8 @@ captures/
 
 # macOS
 .DS_Store
+
+# Release signing (keep out of git)
+keystore.properties
+*.jks
+*.keystore
