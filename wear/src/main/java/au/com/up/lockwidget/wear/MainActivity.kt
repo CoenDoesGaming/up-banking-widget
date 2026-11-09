@@ -1,48 +1,89 @@
 package au.com.up.lockwidget.wear
 
-import android.app.Activity
-import android.graphics.Color
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.Gravity
-import android.widget.LinearLayout
-import android.widget.TextView
-import java.text.DateFormat
-import java.util.Date
+import android.os.Handler
+import android.os.Looper
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableStateOf
+import com.google.android.gms.wearable.Wearable
 
-/** Minimal status screen: shows when the phone last synced data to the watch. */
-class MainActivity : Activity() {
+/**
+ * Two (or three, with 2Up) page watch app. Renders straight from locally stored data so it opens
+ * instantly, then asks the phone for a fresh sync in the background.
+ */
+class MainActivity : ComponentActivity() {
+
+    private val detail = mutableStateOf<DetailStore.Detail?>(null)
+    private val snapshot = mutableStateOf<SnapshotStore.Snapshot?>(null)
+    private val syncStatus = mutableStateOf(SyncStatus.IDLE)
+    private val handler = Handler(Looper.getMainLooper())
+    private val stopRefreshing = Runnable {
+        if (syncStatus.value == SyncStatus.REFRESHING) syncStatus.value = SyncStatus.IDLE
+    }
+
+    // Held as a field: SharedPreferences keeps only a weak reference to listeners
+    private val detailListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == DetailStore.KEY_JSON) {
+            reload()
+            syncStatus.value = SyncStatus.IDLE
+            handler.removeCallbacks(stopRefreshing)
+        }
+    }
+    private val snapshotListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        snapshot.value = SnapshotStore.load(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val snap = SnapshotStore.load(this)
-        val status = if (snap.updatedAt > 0L) {
-            "Last sync from phone:\n" +
-                DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(snap.updatedAt))
-        } else {
-            "Waiting for phone...\nOpen the Up widget app on your phone and tap Save & Sync."
+        reload()
+        setContent {
+            UpWearApp(
+                detail = detail.value,
+                snapshot = snapshot.value,
+                syncStatus = syncStatus.value
+            )
         }
-
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setBackgroundColor(Color.BLACK)
-            setPadding(40, 40, 40, 40)
-        }
-        layout.addView(TextView(this).apply {
-            text = "Up"
-            textSize = 22f
-            setTextColor(0xFFFF7A64.toInt())
-            gravity = Gravity.CENTER
-        })
-        layout.addView(TextView(this).apply {
-            text = "Add the Up complications from your watch face editor.\n\n$status"
-            textSize = 12f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-        })
-        setContentView(layout)
-
         SnapshotListenerService.requestAllComplicationUpdates(this)
     }
+
+    override fun onStart() {
+        super.onStart()
+        DetailStore.prefs(this).registerOnSharedPreferenceChangeListener(detailListener)
+        SnapshotStore.prefs(this).registerOnSharedPreferenceChangeListener(snapshotListener)
+        reload()
+        requestPhoneRefresh()
+    }
+
+    override fun onStop() {
+        DetailStore.prefs(this).unregisterOnSharedPreferenceChangeListener(detailListener)
+        SnapshotStore.prefs(this).unregisterOnSharedPreferenceChangeListener(snapshotListener)
+        handler.removeCallbacks(stopRefreshing)
+        super.onStop()
+    }
+
+    private fun reload() {
+        detail.value = DetailStore.load(this)
+        snapshot.value = SnapshotStore.load(this)
+    }
+
+    /** One-off message; the phone replies by pushing a fresh data item. */
+    private fun requestPhoneRefresh() {
+        syncStatus.value = SyncStatus.REFRESHING
+        handler.removeCallbacks(stopRefreshing)
+        handler.postDelayed(stopRefreshing, 20_000L)
+        Wearable.getNodeClient(this).connectedNodes
+            .addOnSuccessListener { nodes ->
+                if (nodes.isEmpty()) {
+                    syncStatus.value = SyncStatus.NO_PHONE
+                    return@addOnSuccessListener
+                }
+                val messages = Wearable.getMessageClient(this)
+                nodes.forEach { messages.sendMessage(it.id, DetailStore.PATH_REFRESH, null) }
+            }
+            .addOnFailureListener { syncStatus.value = SyncStatus.NO_PHONE }
+    }
 }
+
+enum class SyncStatus { IDLE, REFRESHING, NO_PHONE }

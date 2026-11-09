@@ -40,6 +40,14 @@ A companion watch app adds three complications for your watch face:
 
 The phone app sends already-synced data to the watch over the **Wear Data Layer** after every sync. Your Personal Access Token is **never** sent to the watch, and the watch makes no network calls of its own.
 
+### ⌚ Wear OS App
+Open **Up** from the watch's app list and swipe between pages:
+* **Activity**: your main (individual) Spending balance and its 20 most recent transactions, grouped by day. Pending transactions are marked, and transfers show which of your accounts the money moved to or from.
+* **2Up**: the same view for your 2Up joint Spending account. This page only appears if you have one.
+* **Savers**: total saved, then each Saver with its balance. Tap one to see its 20 most recent transactions, and swipe right to go back.
+
+The watch shows its stored data straight away, even with the phone out of range, and asks the phone for a fresh sync each time it opens. Balances update with every phone sync. Transaction lists refresh at most every 10 minutes in the background (or when you open the watch app) to stay well clear of Up's rate limits.
+
 **Watch setup:**
 1. Install `up-banking-widget-wear-v1.1.0.apk` on your watch (e.g. `adb -s <watch> install up-banking-widget-wear-v1.1.0.apk`).
 2. Open the phone app and tap **Save Settings & Sync All Widgets**.

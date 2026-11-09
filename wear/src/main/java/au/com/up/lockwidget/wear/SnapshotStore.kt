@@ -23,8 +23,10 @@ object SnapshotStore {
         val updatedAt: Long
     )
 
+    fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
     fun save(context: Context, s: Snapshot) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+        prefs(context).edit()
             .putString("spendingName", s.spendingName)
             .putString("spendingBalance", s.spendingBalance)
             .putString("activityTxDesc", s.activityTxDesc)

@@ -90,7 +90,8 @@ object WidgetUpdateHelper {
                 "UpLockWidget:ApiSyncWakeLock"
             )?.apply {
                 setReferenceCounted(false)
-                acquire(12_000L)
+                // Long enough for the widget sync plus the throttled watch detail sync
+                acquire(45_000L)
             }
             try {
                 val result = UpApiClient.syncAll(appContext)
@@ -99,6 +100,10 @@ object WidgetUpdateHelper {
                     WearSync.pushSnapshot(appContext)
                 }
                 onComplete?.invoke(result)
+                // After the widgets and callback, so the watch's slower fetch never delays them
+                result.onSuccess { summary ->
+                    WearDetailSync.sync(appContext, summary.accountsData, force = false)
+                }
             } finally {
                 isSyncInFlight.set(false)
                 AutoSyncScheduler.ensureScheduled(appContext)

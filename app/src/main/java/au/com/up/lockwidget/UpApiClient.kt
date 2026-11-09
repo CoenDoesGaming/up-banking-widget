@@ -16,7 +16,10 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object UpApiClient {
-    private const val BASE_URL = "https://api.up.com.au/api/v1"
+    const val BASE_URL = "https://api.up.com.au/api/v1"
+
+    /** Thrown on HTTP 429 so callers can back off instead of retrying immediately. */
+    class RateLimitedException : IllegalStateException("Up API rate limit reached (HTTP 429)")
 
     data class SyncSummary(
         val spendingName: String,
@@ -30,7 +33,9 @@ object UpApiClient {
         val categoryName: String,
         val categoryLeftWhole: String,
         val categoryLeftLabel: String,
-        val categoryProgress: Float
+        val categoryProgress: Float,
+        /** Raw `data` array from GET /accounts, reused by [WearDetailSync] to avoid a second fetch. */
+        val accountsData: org.json.JSONArray? = null
     )
 
     private data class ParsedAccount(
@@ -235,7 +240,8 @@ object UpApiClient {
                     categoryName = categoryName,
                     categoryLeftWhole = leftWhole,
                     categoryLeftLabel = leftLabel,
-                    categoryProgress = progress
+                    categoryProgress = progress,
+                    accountsData = dataArr
                 )
             )
         } catch (e: Exception) {
@@ -243,7 +249,7 @@ object UpApiClient {
         }
     }
 
-    private fun getJson(urlString: String, token: String): JSONObject {
+    fun getJson(urlString: String, token: String): JSONObject {
         val connection = (URL(urlString).openConnection() as HttpURLConnection).apply {
             requestMethod = "GET"
             connectTimeout = 10_000
@@ -253,6 +259,10 @@ object UpApiClient {
         }
 
         val responseCode = connection.responseCode
+        if (responseCode == 429) {
+            connection.disconnect()
+            throw RateLimitedException()
+        }
         val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
         val body = stream?.use { BufferedReader(InputStreamReader(it)).readText() }.orEmpty()
 

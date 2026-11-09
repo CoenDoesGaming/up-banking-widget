@@ -14,6 +14,11 @@ class SnapshotListenerService : WearableListenerService() {
     override fun onDataChanged(dataEvents: DataEventBuffer) {
         for (event in dataEvents) {
             if (event.type != DataEvent.TYPE_CHANGED) continue
+            if (event.dataItem.uri.path == DetailStore.PATH_DETAIL) {
+                val bytes = DataMapItem.fromDataItem(event.dataItem).dataMap.getByteArray("payload")
+                if (bytes != null) runCatching { DetailStore.saveCompressed(this, bytes) }
+                continue
+            }
             if (event.dataItem.uri.path != "/up/snapshot") continue
 
             val map = DataMapItem.fromDataItem(event.dataItem).dataMap
