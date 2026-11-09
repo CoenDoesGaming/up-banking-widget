@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "UpLockWidget"
 include(":app")
+include(":wear")

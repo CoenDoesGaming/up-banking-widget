@@ -29,6 +29,24 @@ Includes **6 Lock Screen & AOD widgets** across three widget families (available
 ### 🚀 Tap to Open Up
 Tapping any widget on your Lock Screen prompts you to unlock your phone, refreshes your widget balances in the background, and opens the official **Up** app (`au.com.up.money`).
 
+### ⌚ Wear OS Complications
+A companion watch app adds three complications for your watch face:
+
+| Complication | Types |
+|---|---|
+| **Up Activity** | Short text (`Up $123`) and long text (latest transaction) |
+| **Up Savers** | Short text and long text |
+| **Up Category Tracker** | Short text, long text, and a progress ring |
+
+The phone app sends already-synced data to the watch over the **Wear Data Layer** after every sync. Your Personal Access Token is **never** sent to the watch, and the watch makes no network calls of its own.
+
+**Watch setup:**
+1. Install `up-banking-widget-wear-v1.1.0.apk` on your watch (e.g. `adb -s <watch> install up-banking-widget-wear-v1.1.0.apk`).
+2. Open the phone app and tap **Save Settings & Sync All Widgets**.
+3. On the watch, long-press the watch face → **Edit** → choose an **Up** complication.
+
+Requires a watch paired with the phone, and both APKs from the same release (they share a package name and signing key).
+
 ---
 
 ## 📲 Installation & Setup

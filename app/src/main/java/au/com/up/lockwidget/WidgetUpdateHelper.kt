@@ -96,6 +96,7 @@ object WidgetUpdateHelper {
                 val result = UpApiClient.syncAll(appContext)
                 result.onSuccess {
                     renderAllWidgetsFromCache(appContext)
+                    WearSync.pushSnapshot(appContext)
                 }
                 onComplete?.invoke(result)
             } finally {

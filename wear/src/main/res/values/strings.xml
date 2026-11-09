@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Up</string>
+    <string name="complication_activity">Up Activity</string>
+    <string name="complication_savers">Up Savers</string>
+    <string name="complication_category">Up Category Tracker</string>
+</resources>
