@@ -19,8 +19,8 @@ android {
         applicationId = "au.com.up.lockwidget"
         minSdk = 30
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.2.1"
+        versionCode = 5
+        versionName = "1.2.2"
     }
 
     signingConfigs {

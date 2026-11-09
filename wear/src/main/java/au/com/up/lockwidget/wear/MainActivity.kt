@@ -2,10 +2,10 @@ package au.com.up.lockwidget.wear
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.android.gms.wearable.Wearable
 
@@ -17,18 +17,18 @@ class MainActivity : ComponentActivity() {
 
     private val detail = mutableStateOf<DetailStore.Detail?>(null)
     private val snapshot = mutableStateOf<SnapshotStore.Snapshot?>(null)
-    private val syncStatus = mutableStateOf(SyncStatus.IDLE)
-    private val handler = Handler(Looper.getMainLooper())
-    private val stopRefreshing = Runnable {
-        if (syncStatus.value == SyncStatus.REFRESHING) syncStatus.value = SyncStatus.IDLE
-    }
 
-    // Held as a field: SharedPreferences keeps only a weak reference to listeners
+    // "Refreshing…" is derived from these timestamps by the footer's own clock, so it always
+    // clears after REFRESH_TIMEOUT_MS even if no reply arrives (no Handler callback to miss).
+    private val refreshRequestedAt = mutableLongStateOf(0L)
+    private val refreshAnsweredAt = mutableLongStateOf(0L)
+    private val phoneMissing = mutableStateOf(false)
+
+    // Held as fields: SharedPreferences keeps only weak references to listeners
     private val detailListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (key == DetailStore.KEY_JSON) {
-            reload()
-            syncStatus.value = SyncStatus.IDLE
-            handler.removeCallbacks(stopRefreshing)
+            detail.value = DetailStore.load(this)
+            refreshAnsweredAt.longValue = SystemClock.elapsedRealtime()
         }
     }
     private val snapshotListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -42,7 +42,11 @@ class MainActivity : ComponentActivity() {
             UpWearApp(
                 detail = detail.value,
                 snapshot = snapshot.value,
-                syncStatus = syncStatus.value
+                syncStatus = SyncState(
+                    requestedAt = refreshRequestedAt.longValue,
+                    answeredAt = refreshAnsweredAt.longValue,
+                    phoneMissing = phoneMissing.value
+                )
             )
         }
         SnapshotListenerService.requestAllComplicationUpdates(this)
@@ -59,7 +63,6 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         DetailStore.prefs(this).unregisterOnSharedPreferenceChangeListener(detailListener)
         SnapshotStore.prefs(this).unregisterOnSharedPreferenceChangeListener(snapshotListener)
-        handler.removeCallbacks(stopRefreshing)
         super.onStop()
     }
 
@@ -70,20 +73,22 @@ class MainActivity : ComponentActivity() {
 
     /** One-off message; the phone replies by pushing a fresh data item. */
     private fun requestPhoneRefresh() {
-        syncStatus.value = SyncStatus.REFRESHING
-        handler.removeCallbacks(stopRefreshing)
-        handler.postDelayed(stopRefreshing, 20_000L)
+        phoneMissing.value = false
+        refreshRequestedAt.longValue = SystemClock.elapsedRealtime()
         Wearable.getNodeClient(this).connectedNodes
             .addOnSuccessListener { nodes ->
                 if (nodes.isEmpty()) {
-                    syncStatus.value = SyncStatus.NO_PHONE
+                    phoneMissing.value = true
                     return@addOnSuccessListener
                 }
                 val messages = Wearable.getMessageClient(this)
                 nodes.forEach { messages.sendMessage(it.id, DetailStore.PATH_REFRESH, null) }
             }
-            .addOnFailureListener { syncStatus.value = SyncStatus.NO_PHONE }
+            .addOnFailureListener { phoneMissing.value = true }
     }
 }
 
-enum class SyncStatus { IDLE, REFRESHING, NO_PHONE }
+/** Times are [SystemClock.elapsedRealtime] values. */
+data class SyncState(val requestedAt: Long, val answeredAt: Long, val phoneMissing: Boolean)
+
+const val REFRESH_TIMEOUT_MS = 15_000L

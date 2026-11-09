@@ -28,6 +28,8 @@ object WearSync {
             map.putString("categoryLeftWhole", UpPreferences.getCategoryLeftWhole(context))
             map.putString("categoryLeftLabel", UpPreferences.getCategoryLeftLabel(context))
             map.putFloat("categoryProgress", UpPreferences.getCategoryProgress(context))
+            // Watch app data (accounts, savers, recent transactions), gzipped JSON
+            WearDetailSync.cachedPayload(context)?.let { map.putByteArray("detail", it) }
             // Changes every push so the watch is always notified, even if values are identical
             map.putLong("updatedAt", System.currentTimeMillis())
 

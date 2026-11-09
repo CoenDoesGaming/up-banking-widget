@@ -2,8 +2,7 @@ package au.com.up.lockwidget
 
 import android.content.Context
 import android.util.Log
-import com.google.android.gms.wearable.PutDataMapRequest
-import com.google.android.gms.wearable.Wearable
+import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -12,14 +11,13 @@ import java.util.zip.GZIPOutputStream
 
 /**
  * Builds the richer payload for the Wear OS app (Activity, 2Up and Savers pages) and pushes it
- * over the Wear Data Layer at [PATH_DETAIL]. The Personal Access Token never leaves the phone.
+ * to the watch inside the `/up/snapshot` data item (see [WearSync]). The Personal Access Token never leaves the phone.
  *
  * Balances refresh on every widget sync, reusing the accounts list that sync already fetched.
  * Transaction lists cost one API call per account, so they are throttled to [TX_MAX_AGE_MS]
  * unless the watch asks for a refresh when the app opens. A 429 backs off exponentially.
  */
 object WearDetailSync {
-    const val PATH_DETAIL = "/up/detail"
     const val PATH_REFRESH = "/up/refresh"
 
     private const val TAG = "WearDetailSync"
@@ -29,6 +27,7 @@ object WearDetailSync {
     private const val KEY_BACKOFF_UNTIL = "backoff_until"
     private const val KEY_BACKOFF_STEP = "backoff_step"
     private const val KEY_LAST_PAYLOAD = "last_payload"
+    private const val KEY_DETAIL_GZ = "detail_gz"
 
     private const val TX_PER_ACCOUNT = 20
     private const val TX_MAX_AGE_MS = 10 * 60_000L
@@ -141,17 +140,24 @@ object WearDetailSync {
 
         // Skip the Bluetooth hop when nothing changed, unless the watch is waiting on a refresh
         val body = payload.toString()
-        if (!force && body == prefs.getString(KEY_LAST_PAYLOAD, null)) return
+        // Also require a cached payload: a phone upgraded from v1.2.1 has KEY_LAST_PAYLOAD but none
+        if (!force && body == prefs.getString(KEY_LAST_PAYLOAD, null) && prefs.contains(KEY_DETAIL_GZ)) return
         prefs.edit().putString(KEY_LAST_PAYLOAD, body).apply()
 
         payload.put("syncedAt", now)
-        val request = PutDataMapRequest.create(PATH_DETAIL)
-        request.dataMap.putByteArray("payload", gzip(payload.toString()))
-        request.dataMap.putLong("syncedAt", now)
-        val put = request.asPutDataRequest()
-        if (force) put.setUrgent()
-        Wearable.getDataClient(context).putDataItem(put)
+        prefs.edit()
+            .putString(KEY_DETAIL_GZ, Base64.encodeToString(gzip(payload.toString()), Base64.NO_WRAP))
+            .commit()
+        // Ride along on the urgent /up/snapshot item the complications already use. A separate,
+        // non-urgent data item could sit undelivered for up to 30 minutes.
+        WearSync.pushSnapshot(context)
     }
+
+    /** Latest gzipped payload, attached to every snapshot push by [WearSync]. */
+    fun cachedPayload(context: Context): ByteArray? =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getString(KEY_DETAIL_GZ, null)
+            ?.let { runCatching { Base64.decode(it, Base64.NO_WRAP) }.getOrNull() }
 
     private fun startBackoff(context: Context, now: Long) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)

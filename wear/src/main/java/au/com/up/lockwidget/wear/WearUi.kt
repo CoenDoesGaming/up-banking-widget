@@ -1,5 +1,6 @@
 package au.com.up.lockwidget.wear
 
+import android.os.SystemClock
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -75,7 +76,7 @@ private enum class Page { ACTIVITY, JOINT, SAVERS }
 fun UpWearApp(
     detail: DetailStore.Detail?,
     snapshot: SnapshotStore.Snapshot?,
-    syncStatus: SyncStatus
+    syncStatus: SyncState
 ) {
     // Freshest of the two pushes: snapshot arrives every phone sync, detail only when data changes
     val lastSync = maxOf(detail?.syncedAt ?: 0L, snapshot?.updatedAt ?: 0L)
@@ -108,7 +109,7 @@ private fun HomePager(
     detail: DetailStore.Detail?,
     snapshot: SnapshotStore.Snapshot?,
     lastSync: Long,
-    syncStatus: SyncStatus,
+    syncStatus: SyncState,
     onOpenAccount: (String) -> Unit
 ) {
     // 2Up only gets a page when the phone found a joint account
@@ -177,7 +178,7 @@ private fun ScalingLazyListScope.accountBody(
     label: String,
     detail: DetailStore.Detail?,
     lastSync: Long,
-    syncStatus: SyncStatus
+    syncStatus: SyncState
 ) {
     balanceHeader(label, account.balanceCents)
     if (account.transactions.isEmpty()) {
@@ -206,7 +207,7 @@ private fun ScalingLazyListScope.accountBody(
 private fun ScalingLazyListScope.saversBody(
     detail: DetailStore.Detail?,
     lastSync: Long,
-    syncStatus: SyncStatus,
+    syncStatus: SyncState,
     onOpenAccount: (String) -> Unit
 ) {
     val savers = detail?.savers.orEmpty()
@@ -240,7 +241,7 @@ private fun ScalingLazyListScope.saversBody(
 private fun ScalingLazyListScope.waitingForPhone(
     snapshot: SnapshotStore.Snapshot?,
     lastSync: Long,
-    syncStatus: SyncStatus
+    syncStatus: SyncState
 ) {
     item {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -304,25 +305,30 @@ private fun TransactionRow(tx: DetailStore.Tx, transferAccount: DetailStore.Acco
     }
 }
 
-private fun ScalingLazyListScope.syncFooter(lastSync: Long, status: SyncStatus) {
+private fun ScalingLazyListScope.syncFooter(lastSync: Long, status: SyncState) {
     item { SyncFooter(lastSync, status) }
 }
 
 @Composable
-private fun SyncFooter(lastSync: Long, status: SyncStatus) {
-    // Re-render every 30s so "x min ago" keeps moving while the app is open
+private fun SyncFooter(lastSync: Long, status: SyncState) {
+    // Tick every few seconds so "Refreshing…" times out and "x min ago" keeps moving
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var uptime by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     LaunchedEffect(Unit) {
         while (true) {
-            delay(30_000L)
+            delay(3_000L)
             now = System.currentTimeMillis()
+            uptime = SystemClock.elapsedRealtime()
         }
     }
+    val refreshing = status.requestedAt > 0L &&
+        status.answeredAt < status.requestedAt &&
+        uptime - status.requestedAt < REFRESH_TIMEOUT_MS
     val ago = if (lastSync > 0L) "Synced ${relative(now - lastSync)}" else "Not synced yet"
-    val text = when (status) {
-        SyncStatus.REFRESHING -> "Refreshing… · $ago"
-        SyncStatus.NO_PHONE -> "Phone not connected · $ago"
-        SyncStatus.IDLE -> ago
+    val text = when {
+        status.phoneMissing -> "Phone not connected · $ago"
+        refreshing -> "Refreshing… · $ago"
+        else -> ago
     }
     val stale = lastSync == 0L || now - lastSync > 60 * 60_000L
     Text(

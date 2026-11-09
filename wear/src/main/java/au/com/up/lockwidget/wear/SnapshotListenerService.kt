@@ -14,6 +14,7 @@ class SnapshotListenerService : WearableListenerService() {
     override fun onDataChanged(dataEvents: DataEventBuffer) {
         for (event in dataEvents) {
             if (event.type != DataEvent.TYPE_CHANGED) continue
+            // Separate item used by the v1.2.0/v1.2.1 phone app; kept so mixed versions still work
             if (event.dataItem.uri.path == DetailStore.PATH_DETAIL) {
                 val bytes = DataMapItem.fromDataItem(event.dataItem).dataMap.getByteArray("payload")
                 if (bytes != null) runCatching { DetailStore.saveCompressed(this, bytes) }
@@ -22,6 +23,10 @@ class SnapshotListenerService : WearableListenerService() {
             if (event.dataItem.uri.path != "/up/snapshot") continue
 
             val map = DataMapItem.fromDataItem(event.dataItem).dataMap
+            // Watch app data travels inside the snapshot (v1.2.2+ phone app)
+            map.getByteArray("detail")?.let { bytes ->
+                runCatching { DetailStore.saveCompressed(this, bytes) }
+            }
             SnapshotStore.save(
                 this,
                 SnapshotStore.Snapshot(
