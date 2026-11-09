@@ -49,7 +49,7 @@ Open **Up** from the watch's app list and swipe between pages:
 The watch shows its stored data straight away, even with the phone out of range, and asks the phone for a fresh sync each time it opens. Balances update with every phone sync. Transaction lists refresh at most every 10 minutes in the background (or when you open the watch app) to stay well clear of Up's rate limits.
 
 **Watch setup:**
-1. Install `up-banking-widget-wear-v1.2.0.apk` on your watch (e.g. `adb -s <watch> install up-banking-widget-wear-v1.2.0.apk`).
+1. Install `up-banking-widget-wear-v1.2.1.apk` on your watch (e.g. `adb -s <watch> install up-banking-widget-wear-v1.2.1.apk`).
 2. Open the phone app and tap **Save Settings & Sync All Widgets**.
 3. On the watch, long-press the watch face → **Edit** → choose an **Up** complication.
 
@@ -60,6 +60,7 @@ Requires a watch paired with the phone, and both APKs from the same release (the
 ## 📲 Installation & Setup
 
 1. **Download the APK**: Download the latest `.apk` from the [**Releases**](../../releases) page and install it on your Samsung Galaxy device.
+   * **Upgrading from v1.2.0 or earlier?** From v1.2.1, releases are signed with a new key, so uninstall the old phone app (and watch app, if installed) first. You'll need to re-enter your Personal Access Token.
 2. **Get Your Up Personal Access Token**:
    * Open the **Up** app on your phone.
    * Go to **Data sharing** → **Personal Access Token** (or visit [api.up.com.au](https://api.up.com.au/)).
