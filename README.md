@@ -41,7 +41,7 @@ A companion watch app adds three complications for your watch face:
 The phone app sends already-synced data to the watch over the **Wear Data Layer** after every sync. Your Personal Access Token is **never** sent to the watch, and the watch makes no network calls of its own.
 
 ### ⌚ Wear OS App
-Open **Up** from the watch's app list and swipe between pages:
+Open **Up Widgets** from the watch's app list and swipe between pages:
 * **Activity**: your main (individual) Spending balance and its 20 most recent transactions, grouped by day. Pending transactions are marked, and transfers show which of your accounts the money moved to or from.
 * **2Up**: the same view for your 2Up joint Spending account. This page only appears if you have one.
 * **Savers**: total saved, then each Saver with its balance. Tap one to see its 20 most recent transactions, and swipe right to go back.

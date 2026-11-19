@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Up</string>
+    <string name="app_name">Up Widgets</string>
 
     <string name="widget_activity_tiny_label">Activity (1x1)</string>
     <string name="widget_activity_small_label">Activity (2x1)</string>
