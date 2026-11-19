@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 object WidgetUpdateHelper {
     const val ACTION_REFRESH_WIDGET = "au.com.up.lockwidget.ACTION_REFRESH_WIDGET"
+    const val UP_PACKAGE_NAME = "au.com.up.money"
     private val executor = Executors.newSingleThreadExecutor()
     private val isSyncInFlight = AtomicBoolean(false)
 
@@ -278,10 +279,16 @@ object WidgetUpdateHelper {
         context: Context,
         appWidgetId: Int
     ): PendingIntent {
-        val intent = Intent(context, LaunchUpActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        }
+        // Open Up directly. On the lock screen the system shows its own unlock prompt and then
+        // opens Up, with no see-through trampoline screen in between (that caused glitches).
+        val intent = context.packageManager.getLaunchIntentForPackage(UP_PACKAGE_NAME)
+            ?.apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            }
+            // Up not installed: open this app's settings screen instead
+            ?: Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
         return PendingIntent.getActivity(
             context,
             appWidgetId,

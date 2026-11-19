@@ -30,16 +30,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Trampoline activity that unlocks the screen, refreshes widgets, and opens the Up app -->
-        <activity
-            android:name=".LaunchUpActivity"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:noHistory="true"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <!-- Periodic Background Sync JobService (every 15m + persisted across reboots) -->
         <service
             android:name=".UpSyncJobService"

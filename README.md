@@ -27,7 +27,7 @@ Includes **6 Lock Screen & AOD widgets** across three widget families (available
 * **Real-Time Instant Sync (Optional)**: Enable **Up Widget Instant Sync** under Notification Access inside the app so your Lock Screen widgets also update within 1.5 seconds whenever the official **Up** app posts a card purchase or transfer notification, and immediately whenever your Lock Screen turns on (`ACTION_SCREEN_ON`).
 
 ### 🚀 Tap to Open Up
-Tapping any widget on your Lock Screen prompts you to unlock your phone, refreshes your widget balances in the background, and opens the official **Up** app (`au.com.up.money`).
+Tapping any widget on your Lock Screen prompts you to unlock your phone, then opens the official **Up** app (`au.com.up.money`).
 
 ### ⌚ Wear OS Complications
 A companion watch app adds three complications for your watch face:

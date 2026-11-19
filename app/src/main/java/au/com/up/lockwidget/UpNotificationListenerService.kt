@@ -58,7 +58,7 @@ class UpNotificationListenerService : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        if (sbn?.packageName == LaunchUpActivity.UP_PACKAGE_NAME) {
+        if (sbn?.packageName == WidgetUpdateHelper.UP_PACKAGE_NAME) {
             handler.removeCallbacks(instantSyncRunnable)
             handler.postDelayed(instantSyncRunnable, 1500L)
         }
