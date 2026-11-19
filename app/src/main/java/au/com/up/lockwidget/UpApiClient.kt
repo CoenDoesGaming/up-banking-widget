@@ -286,7 +286,8 @@ object UpApiClient {
     }
 
     fun formatWholeCurrency(amount: BigDecimal): String {
-        val rounded = amount.setScale(0, RoundingMode.HALF_UP)
+        // Always round down so a widget never shows more than is really there ($2.90 -> $2)
+        val rounded = amount.setScale(0, RoundingMode.FLOOR)
         val sign = if (rounded.signum() < 0) "-" else ""
         val formattedWhole = NumberFormat.getIntegerInstance(Locale.US).format(rounded.abs())
         return "$sign$$formattedWhole"
