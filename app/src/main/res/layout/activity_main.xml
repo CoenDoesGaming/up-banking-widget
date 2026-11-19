@@ -22,18 +22,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Up"
-                android:textColor="@color/up_coral"
-                android:textSize="26sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="Lock Screen Widgets"
+                android:text="@string/app_name"
                 android:textColor="@color/up_text_primary"
-                android:textSize="22sp"
+                android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -252,7 +243,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Background auto-sync runs every 1 minute (even while your screen is locked). Enable Notification Access below for instant Lock Screen wake &amp; 1-second transaction updates:"
+                android:text="Widgets sync in the background, even while your screen is locked. Allow alarms for a sync every minute (otherwise Android limits it to roughly every 15 minutes while locked), and enable notification access for instant updates when you pay:"
                 android:textColor="@color/up_text_secondary"
                 android:textSize="12sp" />
 
@@ -266,7 +257,27 @@
                 android:textAllCaps="false"
                 android:textColor="@color/up_text_primary"
                 android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btn_exact_alarm"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#32323E"
+                android:text="Allow 1-Minute Sync (Alarms &amp; reminders)"
+                android:textAllCaps="false"
+                android:textColor="@color/up_text_primary"
+                android:textSize="13sp"
+                android:visibility="gone" />
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/unofficial_notice"
+            android:textColor="@color/up_text_secondary"
+            android:textSize="11sp" />
 
     </LinearLayout>
 </ScrollView>

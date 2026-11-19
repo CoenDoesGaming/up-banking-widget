@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Up Widgets</string>
+    <string name="app_name">Widgets for Up</string>
+    <string name="unofficial_notice">Unofficial app. Not made by, affiliated with or endorsed by Up or Bendigo and Adelaide Bank. Your Personal Access Token is stored encrypted on this phone and only ever sent to Up\'s API (api.up.com.au). Nothing is sent anywhere else.</string>
+    <string name="notif_disclosure_title">Instant sync uses notification access</string>
+    <string name="notif_disclosure_body">To update your widgets the moment you pay, Widgets for Up needs notification access.\n\nAndroid shows this as access to all notifications, but the app only checks which app posted each one. When it\'s from the Up app, it refreshes your balances from Up\'s API.\n\nIt never reads, stores or sends notification content. You can turn this off at any time in Settings.</string>
+    <string name="notif_disclosure_continue">Continue to Settings</string>
+    <string name="notif_disclosure_cancel">Not now</string>
 
     <string name="widget_activity_tiny_label">Activity (1x1)</string>
     <string name="widget_activity_small_label">Activity (2x1)</string>

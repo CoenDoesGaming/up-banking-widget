@@ -1,4 +1,6 @@
-# Up Banking Lock Screen Widgets (Samsung One UI)
+# Widgets for Up — Lock Screen Widgets for Up Bank (Samsung One UI)
+
+> **Unofficial.** Not made by, affiliated with or endorsed by Up or Bendigo and Adelaide Bank. See the [privacy policy](PRIVACY.md).
 
 An open-source Android app that brings **Up Bank** Lock Screen and Always-On Display (AOD) widgets to **Samsung One UI (One UI 7+)** devices, powered by the official [Up Banking API](https://developer.up.com.au/).
 
@@ -23,8 +25,8 @@ Includes **6 Lock Screen & AOD widgets** across three widget families (available
 * Pick any official Up spending category and set your monthly budget target inside the app.
 
 ### 🔄 Automatic Background Updates (Even While Locked)
-* **1-Minute Background Sync (`ELAPSED_REALTIME_WAKEUP`)**: Automatically wakes a partial background worker every **60 seconds** (and on Lock Screen wake) to fetch your latest balances and transactions and push them directly to your Lock Screen and AOD widgets—even while your phone stays locked.
-* **Real-Time Instant Sync (Optional)**: Enable **Up Widget Instant Sync** under Notification Access inside the app so your Lock Screen widgets also update within 1.5 seconds whenever the official **Up** app posts a card purchase or transfer notification, and immediately whenever your Lock Screen turns on (`ACTION_SCREEN_ON`).
+* **1-Minute Background Sync (`ELAPSED_REALTIME_WAKEUP`)**: Tap **Allow 1-Minute Sync** in the app (Android 12+ asks you to allow *Alarms & reminders*) and it wakes a partial background worker every **60 seconds** (and on Lock Screen wake) to fetch your latest balances and transactions and push them directly to your Lock Screen and AOD widgets—even while your phone stays locked. Without that permission, Android limits locked-screen syncs to roughly every 15 minutes.
+* **Real-Time Instant Sync (Optional)**: Enable **Widgets for Up instant sync** under Notification Access inside the app so your Lock Screen widgets also update within 1.5 seconds whenever the official **Up** app posts a card purchase or transfer notification, and immediately whenever your Lock Screen turns on (`ACTION_SCREEN_ON`).
 
 ### 🚀 Tap to Open Up
 Tapping any widget on your Lock Screen prompts you to unlock your phone, then opens the official **Up** app (`au.com.up.money`).
@@ -41,7 +43,7 @@ A companion watch app adds three complications for your watch face:
 The phone app sends already-synced data to the watch over the **Wear Data Layer** after every sync. Your Personal Access Token is **never** sent to the watch, and the watch makes no network calls of its own.
 
 ### ⌚ Wear OS App
-Open **Up Widgets** from the watch's app list and swipe between pages:
+Open **Widgets for Up** from the watch's app list and swipe between pages:
 * **Activity**: your main (individual) Spending balance and its 20 most recent transactions, grouped by day. Pending transactions are marked, and transfers show which of your accounts the money moved to or from.
 * **2Up**: the same view for your 2Up joint Spending account. This page only appears if you have one.
 * **Savers**: total saved, then each Saver with its balance. Tap one to see its 20 most recent transactions, and swipe right to go back.
@@ -66,7 +68,7 @@ Requires a watch paired with the phone, and both APKs from the same release (the
    * Go to **Data sharing** → **Personal Access Token** (or visit [api.up.com.au](https://api.up.com.au/)).
    * Generate a token (`up:yeah:...`) and copy it.
 3. **Configure the App**:
-   * Open the **Up** widget companion app.
+   * Open the **Widgets for Up** app.
    * Paste your **Personal Access Token**, select your preferred Saver and Category Tracker budget, and tap **Save Settings & Sync All Widgets**.
 4. **Add Widgets to Your Samsung Lock Screen**:
    * Long-press your **Lock Screen** (or open *Settings → Wallpaper and style → Lock screen*).

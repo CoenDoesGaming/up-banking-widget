@@ -1,6 +1,9 @@
 package au.com.up.lockwidget
 
+import android.app.AlarmManager
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -11,6 +14,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etCategoryBudget: EditText
     private lateinit var etToken: EditText
     private lateinit var btnSaveSync: Button
+    private lateinit var btnExactAlarm: Button
 
     private var saverOptions: List<UpPreferences.SaverOption> = emptyList()
     private val categoryOptions = UpPreferences.DEFAULT_CATEGORIES
@@ -63,13 +68,40 @@ class MainActivity : AppCompatActivity() {
             saveInputsAndSync()
         }
 
+        btnExactAlarm = findViewById(R.id.btn_exact_alarm)
+
+        // Play requires a prominent disclosure before sending people to grant notification access
         btnInstantNotif.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            AlertDialog.Builder(this)
+                .setTitle(R.string.notif_disclosure_title)
+                .setMessage(R.string.notif_disclosure_body)
+                .setPositiveButton(R.string.notif_disclosure_continue) { _, _ ->
+                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                }
+                .setNegativeButton(R.string.notif_disclosure_cancel, null)
+                .show()
+        }
+
+        btnExactAlarm.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                startActivity(
+                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName"))
+                )
+            }
         }
 
         if (currentToken.isNotEmpty()) {
             syncNow()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Coming back from Settings: show the alarm button only while 1-minute sync is unavailable
+        val needsExactAlarm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            getSystemService(AlarmManager::class.java)?.canScheduleExactAlarms() == false
+        btnExactAlarm.visibility = if (needsExactAlarm) View.VISIBLE else View.GONE
+        AutoSyncScheduler.ensureScheduled(this)
     }
 
     private fun setupCategorySpinner() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Up Widgets</string>
+    <string name="app_name">Widgets for Up</string>
     <string name="complication_activity">Up Activity</string>
     <string name="complication_savers">Up Savers</string>
     <string name="complication_category">Up Category Tracker</string>
