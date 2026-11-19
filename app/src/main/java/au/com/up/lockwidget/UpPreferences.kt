@@ -9,7 +9,9 @@ import java.util.Locale
 
 object UpPreferences {
     private const val PREFS_NAME = "up_lock_widget_prefs"
+    /** Plain-text token from versions up to 1.2.3; migrated to [KEY_TOKEN_ENCRYPTED] on first read. */
     private const val KEY_TOKEN = "personal_access_token"
+    private const val KEY_TOKEN_ENCRYPTED = "personal_access_token_enc"
     private const val KEY_LAST_UPDATED = "last_updated"
 
     // Activity (Spending + Recent Transaction)
@@ -67,12 +69,26 @@ object UpPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun getToken(context: Context): String {
-        val saved = prefs(context).getString(KEY_TOKEN, null)?.trim().orEmpty()
+        val p = prefs(context)
+        // Versions up to 1.2.3 stored the token in plain text: encrypt it once, then delete it
+        val legacy = p.getString(KEY_TOKEN, null)?.trim().orEmpty()
+        if (legacy.isNotEmpty()) {
+            setToken(context, legacy)
+            return legacy
+        }
+        val saved = p.getString(KEY_TOKEN_ENCRYPTED, null)?.let(TokenCrypto::decrypt)?.trim().orEmpty()
         return if (saved.isNotEmpty()) saved else DEFAULT_PERSONAL_ACCESS_TOKEN.trim()
     }
 
     fun setToken(context: Context, token: String) {
-        prefs(context).edit().putString(KEY_TOKEN, token.trim()).apply()
+        val trimmed = token.trim()
+        val editor = prefs(context).edit().remove(KEY_TOKEN)
+        if (trimmed.isEmpty()) {
+            editor.remove(KEY_TOKEN_ENCRYPTED)
+        } else {
+            editor.putString(KEY_TOKEN_ENCRYPTED, TokenCrypto.encrypt(trimmed))
+        }
+        editor.commit()
     }
 
     fun markUpdatedNow(context: Context) {
